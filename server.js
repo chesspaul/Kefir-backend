@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import productosRoutes from "./routes/productosRoutes.js";
 import contactosRoutes from "./routes/contactosRoutes.js";
+import errorHandler from "./middlewares/errorMiddleware.js";
 
 dotenv.config();
 connectDB();
@@ -17,7 +18,9 @@ app.use("/api/productos", productosRoutes);
 
 app.use("/api/contactos", contactosRoutes);
 
+
 app.listen(3000, () => {
   console.log("Servidor corriendo ");
 });
 
+app.use(errorHandler);

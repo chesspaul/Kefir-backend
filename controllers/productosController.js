@@ -1,30 +1,54 @@
+import asyncHandler from "express-async-handler";
 import Producto from "../models/productoModel.js";
 
-// GET todos
-export const getProductos = async (req, res) => {
+// GET
+export const getProductos = asyncHandler(async (req, res) => {
   const productos = await Producto.find();
-  res.json(productos);
-};
+  res.status(200).json(productos);
+});
 
-// POST crear
-export const crearProducto = async (req, res) => {
-  const nuevo = new Producto(req.body);
-  await nuevo.save();
-  res.json(nuevo);
-};
+// POST
+export const crearProducto = asyncHandler(async (req, res) => {
+  const { nombre, precio } = req.body;
 
-// PUT actualizar
-export const actualizarProducto = async (req, res) => {
+  if (!nombre || !precio) {
+    res.status(400);
+    throw new Error("Faltan datos obligatorios");
+  }
+
+  const nuevo = await Producto.create(req.body);
+
+  res.status(201).json(nuevo);
+});
+
+// PUT
+export const actualizarProducto = asyncHandler(async (req, res) => {
+  const producto = await Producto.findById(req.params.id);
+
+  if (!producto) {
+    res.status(404);
+    throw new Error("Producto no encontrado");
+  }
+
   const actualizado = await Producto.findByIdAndUpdate(
     req.params.id,
     req.body,
     { new: true }
   );
-  res.json(actualizado);
-};
 
-// DELETE eliminar
-export const eliminarProducto = async (req, res) => {
-  await Producto.findByIdAndDelete(req.params.id);
-  res.json({ mensaje: "Producto eliminado" });
-};
+  res.status(200).json(actualizado);
+});
+
+// DELETE
+export const eliminarProducto = asyncHandler(async (req, res) => {
+  const producto = await Producto.findById(req.params.id);
+
+  if (!producto) {
+    res.status(404);
+    throw new Error("Producto no encontrado");
+  }
+
+  await Producto.deleteOne(producto);
+
+  res.status(200).json({ mensaje: "Producto eliminado" });
+});

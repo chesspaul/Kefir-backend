@@ -1,14 +1,22 @@
+import asyncHandler from "express-async-handler";
 import Contacto from "../models/contactoModel.js";
 
-// POST → guardar mensaje
-export const crearContacto = async (req, res) => {
-  const nuevo = new Contacto(req.body);
-  await nuevo.save();
-  res.json(nuevo);
-};
+// POST
+export const crearContacto = asyncHandler(async (req, res) => {
+  const { nombre, email, mensaje } = req.body;
 
-// GET → ver todos (admin)
-export const getContactos = async (req, res) => {
+  if (!nombre || !email || !mensaje) {
+    res.status(400);
+    throw new Error("Todos los campos son obligatorios");
+  }
+
+  const nuevo = await Contacto.create(req.body);
+
+  res.status(201).json(nuevo);
+});
+
+// GET
+export const getContactos = asyncHandler(async (req, res) => {
   const contactos = await Contacto.find();
-  res.json(contactos);
-};
+  res.status(200).json(contactos);
+});
